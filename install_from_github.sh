@@ -1,4 +1,3 @@
-#!/bin/bash
 
 PROGRAM_NAME="pres"
 
