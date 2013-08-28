@@ -1,0 +1,8 @@
+#!/bin/bash
+
+center "this slide uses bullets"
+
+bullet "three"
+bullet "two"
+bullet "one"
+

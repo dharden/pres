@@ -1,0 +1,40 @@
+#!/bin/bash
+
+source ./utils/common
+
+echo -e "WARNING: This will put a PATH export line in your ~/.bashrc or /.zshrc
+
+I don't feel like writing another installation script...
+
+Is that cool with you bro? [y/N]"
+
+answer=`yesno`
+
+
+if [[ "$answer" == "yes" ]]; then
+
+  # Determine what shell is being used
+  is_zsh=`echo $SHELL | grep -c zsh`
+  is_bash=`echo $SHELL | grep -c bash`
+
+  program_path="`pwd`/bin/"
+
+  path_export="export PATH=\$PATH:$program_path"
+
+  # If its zsh, output alias to .zshrc
+  if [ $is_zsh -eq "1" ]; then
+    echo "$path_export" >> "$HOME/.zshrc"
+    echo "*** program PATH has been exported to your ~/.zshrc"
+  fi
+
+  # If its bash, output alias to .bashrc
+  if [ $is_bash -eq "1" ]; then
+    echo "$path_export" >> "$HOME/.bashrc"
+    echo "*** program PATH has been exported to your ~/.bashrc"
+  fi
+
+  echo "You should be all set."
+
+else
+  echo -e "\n\nlame dude, lame!"
+fi

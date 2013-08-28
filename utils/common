@@ -1,0 +1,20 @@
+#!/bin/bash
+
+function command_exists() {
+  command -v $1 >/dev/null && echo "1" || echo "0"
+}
+
+function fart() {
+  $@ > /dev/null 2>&1 &
+  disown $!
+}
+
+yesno() {
+  read -p "$1 " response
+  if [[ $response == "y" || $response == "Y" || $response == "yes" ]]; then
+    echo "yes"
+  else
+    echo "no"
+  fi
+}
+

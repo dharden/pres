@@ -1,0 +1,218 @@
+#!/bin/bash
+
+# pretty much what not to do in bash?
+
+SCRIPT_DIR=`dirname $0`
+PROGRAM_DIR="$SCRIPT_DIR/../"
+
+source $PROGRAM_DIR/utils/common
+source $PROGRAM_DIR/utils/text_utils
+source $PROGRAM_DIR/utils/tmux_utils
+
+
+PRESENTATION_DIR="$PROGRAM_DIR/presentations/example"
+
+if [[ "$1" ]]; then
+  PRESENTATION_DIR="$PROGRAM_DIR/presentations/$1"
+fi
+
+SLIDES_DIR="$PRESENTATION_DIR/"
+
+current_slide=1
+
+bullet_queue=();
+append_bullets="1"
+bullet_queue_page=-1
+bullet_point_string=""
+
+function bullet_queue_remove {
+  pos=0
+  bullet_queue=("${bullet_queue[@]:0:$pos}" "${bullet_queue[@]:$(($pos + 1))}")
+}
+
+function bullet_queue_append {
+  bullet_queue=("${bullet_queue[@]}" "$1")
+}
+
+function bullet {
+  bullet_text="$1"
+  if [ "$append_bullets" == "1" ]; then
+    bullet_queue_page=$current_slide
+    bullet_queue_append "$bullet_text"
+  fi
+}
+
+function show_bullet {
+    run_slide "$current_slide" "${bullet_queue[0]}" "bullet_queue_remove"
+}
+
+function first_slide_below {
+  center "This is beyond the begining of the presentation."
+}
+
+function last_slide_above {
+  center "There are no more slides in the presentation"
+}
+
+function last_slide_num {
+  expr `ls -1 "$SLIDES_DIR" | egrep -v "slide(.*)\." | wc -l`
+}
+
+function slide_next {
+
+  if [ "${#bullet_queue[@]}" -gt 0 ]; then
+    show_bullet
+    current_slide=`expr $current_slide + 1`
+    return 0
+  else
+    bullet_point_string=""
+  fi
+
+  current_slide=`expr $current_slide + 1`
+
+  #last_slide=$(expr `last_slide_num`)
+  last_slide=`last_slide_num`
+
+  if [[ $current_slide -gt $last_slide ]]; then
+    current_slide=`expr $last_slide + 1`
+    run_slide last_slide_above
+  else
+    run_slide $current_slide
+  fi
+}
+
+function slide_previous {
+
+  if [ "${#bullet_queue[@]}" -gt 0 ]; then
+    bullet_queue=();
+  else
+    bullet_point_string=""
+  fi
+
+  current_slide=`expr $current_slide - 1`
+
+  if [ $current_slide -lt 1 ]; then
+    current_slide=1
+    run_slide first_slide_below
+  else
+    run_slide $current_slide
+  fi
+
+}
+
+function slide_logic {
+
+  read result
+
+  if [ "$result" == "<" ]; then
+    slide_previous
+  elif [ "$result" == ">" ]; then
+    slide_next
+  elif [ "$result" == "" ]; then
+    slide_next
+  elif [ "$result" == "." ]; then
+    exit
+  else
+    slide_next
+    exit
+  fi
+
+}
+
+function run_slide {
+  slide_identifier="$1"
+  bullet_point_string_current="$2"
+  command_to_run="$3"
+
+  if [ "$command_to_run" ]; then
+    $command_to_run
+  fi
+
+  clear
+
+  # commands within slides are blocking, if you dont want them to block
+  # then put them in slidename.before and slidename.after
+
+  run_non_blocking_slide_commands "before" "$slide_identifier"
+
+  append_bullets="1"
+  if [ "$bullet_point_string_current" ]; then
+    append_bullets="0"
+  fi
+
+  source_slide "$slide_identifier"
+
+  if [ "$bullet_point_string_current" ]; then
+    bullet_point_string="$bullet_point_string\n`hcenter "\n$bullet_point_string_current\n-\n"`"
+    echo -e "$bullet_point_string"
+  else
+    echo ""
+  fi
+
+  output=$(source_slide "$slide_identifier")
+
+
+  run_non_blocking_slide_commands "after" "$slide_identifier"
+
+  slide_content_lines=`echo -e "$output" | wc -l`
+
+  show_slide_position "$slide_content_lines"
+
+
+  slide_logic "$result"
+}
+
+function source_slide {
+  slide_identifier="$1"
+
+  slide_file=`get_slide_filename $slide_identifier`
+
+  # Slide file exists, for the slide #
+  if [ -f "$slide_file" ]; then
+    source "$slide_file"
+  else
+    # A command name exists for that slide identifier
+    if [[ `command_exists $slide_identifier ` == '1' ]]; then
+      "$slide_identifier"
+    else
+      echo "404"
+    fi
+  fi
+
+}
+
+function run_non_blocking_slide_commands {
+
+  command_file_suffix="$1"
+  slide_identifier="$2"
+
+  slide_file=`get_slide_filename $slide_identifier`
+
+  # Slide file exists, for the slide #
+  if [ -f "$slide_file.$command_file_suffix" ]; then
+    source "$slide_file.$command_file_suffix"
+  fi
+
+}
+
+function get_slide_filename {
+
+  slide_number="$1"
+
+  re='^[0-9]+$'
+  if ! [[ $slide_number =~ $re ]] ; then
+     echo "INVALID_ARGUMENT_$slide_number"
+  else
+    slide_file=`ls -1 "$SLIDES_DIR" | egrep -v "slide(.*)\." | sed -n "$slide_number""p"`
+    echo "$SLIDES_DIR/$slide_file"
+  fi
+
+}
+
+function show_slide_position {
+  align_text_bottom_offset "$1" "$current_slide of `last_slide_num`"
+}
+
+run_slide "$current_slide"
+
+

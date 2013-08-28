@@ -1,0 +1,4 @@
+#!/bin/bash
+
+center "this is the first slide, using the \"center\" function for both vertical
+and horizontal alignment"

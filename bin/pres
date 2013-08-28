@@ -1,0 +1,35 @@
+#!/bin/bash
+
+SCRIPT_DIR=`dirname $0`
+PROGRAM_DIR="$SCRIPT_DIR/../"
+
+if [[ $1 == "start" ]]; then
+
+  if [[ $2 ]]; then
+
+    if [[ -f "$PROGRAM_DIR/presentations/$2/start" ]]; then
+      "$PROGRAM_DIR/presentations/$2/start"
+    else
+      $SCRIPT_DIR/_pres_presentation "$2"
+    fi
+
+  else
+
+    echo "Specify a presentation:\n"
+    ls -1 $PROGRAM_DIR/presentations
+
+  fi
+
+elif [[ $1 == "list" ]]; then
+
+  ls -1 $PROGRAM_DIR/presentations
+
+else
+
+  echo "The following commans are available:
+    pres start
+    pres list
+  "
+
+fi
+

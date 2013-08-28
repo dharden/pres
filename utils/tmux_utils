@@ -1,0 +1,29 @@
+#!/bin/bash
+
+function run_commands {
+
+  commands="$1"
+
+  IFS=$'\n'$'\r'
+
+  for command in $commands; do
+    tmux send-keys -tpresentation:0 "$command" C-m
+    sleep 1
+  done
+
+}
+
+
+function open_command_pane {
+  tmux splitw -tpresentation -h -p 50
+  tmux select-pane -t 1
+}
+
+
+function run_command {
+  command="$1"
+  tmux send-keys -tpresentation:0 "$command" C-m
+  sleep 1
+}
+
+
