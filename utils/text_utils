@@ -14,9 +14,9 @@ function align_text_bottom_offset {
 
   lines=""
 
-  for ((i=0; i < $center; i++)) {
+  for i in {0..$center}; do
     lines="$lines\n"
-  }
+  done
 
   echo -e "$lines$text"
 
@@ -33,9 +33,9 @@ function align_text_bottom {
 
   lines=""
 
-  for ((i=0; i < $center; i++)) {
+  for i in {0..$center}; do
     lines="$lines\n"
-  }
+  done
 
   echo -e "$lines$text"
 }
@@ -53,9 +53,9 @@ function ralign {
     right=`expr \( $cols \) - $line_length`
 
     spaces=""
-    for ((i=0; i < $right; i++)) {
+    for i in {0..$right}; do
       spaces="$spaces "
-    }
+    done
 
     echo -e "$spaces$line"
 
@@ -80,9 +80,9 @@ function hcenter {
     center=`expr \( $cols / 2 \) - $half_of_line_length`
 
     spaces=""
-    for ((i=0; i < $center; i++)) {
+    for i in {0..$center}; do
       spaces="$spaces "
-    }
+    done
 
     echo "$spaces$line"
 
@@ -103,9 +103,9 @@ function vcenter {
 
   lines=""
 
-  for ((i=0; i < $center; i++)) {
+  for i in {0..$center}; do
     lines="$lines\n"
-  }
+  done
 
   echo -e "$lines$text"
 }
