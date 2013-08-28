@@ -1,4 +1,6 @@
 pres
 ====
 
-Presentation software written in bash :O
+run ./setup fool
+
+also, this is not real software
