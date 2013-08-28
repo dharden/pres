@@ -8,13 +8,13 @@ function align_text_bottom_offset {
 
   rows=`tput lines`
 
-  text_length=`echo -e "$text" | wc -l`
-
+  text_length=`echo -e "$text" | wc -l | tr -d ' '`
   center=`expr \( $rows \) - $text_length - $offset_text - 1`
 
   lines=""
 
-  for i in {0..$center}; do
+  for i in `seq $center`
+  do
     lines="$lines\n"
   done
 
@@ -27,13 +27,14 @@ function align_text_bottom {
 
   rows=`tput lines`
 
-  text_length=`echo -e "$text" | wc -l`
+  text_length=`echo -e "$text" | wc -l | tr -d ' '`
 
   center=`expr \( $rows \) - $text_length`
 
   lines=""
 
-  for i in {0..$center}; do
+  for i in `seq $center`
+  do
     lines="$lines\n"
   done
 
@@ -44,16 +45,17 @@ function ralign {
 
   text="$1"
 
-  cols=`tput cols`
+  cols=`tput cols | tr -d ' '`
 
   IFS=$'\n'$'\r'
   for line in $(echo -e "$text"); do
 
-    line_length=`echo -e "$line" | wc -c`
+    line_length=`echo -e "$line" | wc -c | tr -d ' '`
     right=`expr \( $cols \) - $line_length`
 
     spaces=""
-    for i in {0..$right}; do
+    for i in `seq $right`
+    do
       spaces="$spaces "
     done
 
@@ -75,12 +77,13 @@ function hcenter {
   IFS=$'\n'$'\r'
   for line in $(echo -e "$text"); do
 
-    line_length=`echo "$line" | wc -c`
+    line_length=`echo "$line" | wc -c | tr -d ' '`
     half_of_line_length=`expr $line_length / 2`
     center=`expr \( $cols / 2 \) - $half_of_line_length`
 
     spaces=""
-    for i in {0..$center}; do
+    for i in `seq $center`
+    do
       spaces="$spaces "
     done
 
@@ -96,14 +99,14 @@ function vcenter {
 
   rows=`tput lines`
 
-  text_length=`echo -e "$text" | wc -l`
+  text_length=`echo -e "$text" | wc -l | tr -d ' '`
   half_of_text_length=`expr $text_length / 2`
-
   center=`expr \( $rows / 2 \) - $half_of_text_length`
 
   lines=""
 
-  for i in {0..$center}; do
+  for i in `seq $center`
+  do
     lines="$lines\n"
   done
 
